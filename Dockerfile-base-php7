@@ -1,10 +1,10 @@
-FROM php:7.0-apache
-#COPY ./ /var/www/html/
+FROM php:7.1.0-apache
 WORKDIR /var/www/html
 
 RUN apt-get -y clean && \
     apt-get -y update && \
     apt-get -y install \
+    git-sh git \
         curl \
         zlib1g-dev \
         libcurl4-gnutls-dev \
@@ -15,8 +15,17 @@ RUN apt-get -y clean && \
     pecl install redis-3.1.0 && \
     docker-php-ext-configure intl && \
     docker-php-ext-install intl && \
-    docker-php-ext-enable mongodb redis && \
+    docker-php-ext-install zip && \
+    docker-php-ext-enable mongodb redis zip && \
     docker-php-ext-install -j$(nproc) bcmath curl pcntl
+
+ENV TZ Asia/Jakarta
+
+RUN echo $TZ > /etc/timezone && \
+    apt-get install -y tzdata && \
+    rm /etc/localtime && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 RUN set -ex; \
         apt-get install -y libjpeg-dev libpng-dev; \
@@ -46,4 +55,15 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && apt-get au
 # Allow Composer to be run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-#RUN composer install --no-ansi --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
+RUN touch /usr/local/etc/php/php.ini
+RUN echo 'log_errors = On' > /usr/local/etc/php/php.ini
+RUN echo 'error_log = /dev/stderr' >> /usr/local/etc/php/php.ini
+RUN echo 'display_errors = Off' >> /usr/local/etc/php/php.ini
+RUN echo 'display_startup_errors = Off' >> /usr/local/etc/php/php.ini
+RUN echo 'error_reporting = E_ALL' >> /usr/local/etc/php/php.ini
+RUN echo 'safe_mode = Off' >> /usr/local/etc/php/php.ini
+RUN echo 'upload_max_filesize = 40M' >> /usr/local/etc/php/php.ini
+RUN echo 'post_max_size = 40M' >> /usr/local/etc/php/php.ini
+RUN echo 'memory_limit = 256M' >> /usr/local/etc/php/php.ini
+
+# how to build this image: docker build -t registry.awan.io/awan/base/php:7.1.0 -f Dockerfile-base-php7 .
