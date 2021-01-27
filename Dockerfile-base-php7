@@ -30,7 +30,7 @@ RUN echo $TZ > /etc/timezone && \
 RUN set -ex; \
         apt-get install -y libjpeg-dev libpng-dev; \
         docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
-        docker-php-ext-install gd mysqli opcache mysqli pdo pdo_mysql pdo_pgsql
+        docker-php-ext-install gd opcache mysqli pdo pdo_mysql pdo_pgsql
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
@@ -66,4 +66,4 @@ RUN echo 'upload_max_filesize = 40M' >> /usr/local/etc/php/php.ini
 RUN echo 'post_max_size = 40M' >> /usr/local/etc/php/php.ini
 RUN echo 'memory_limit = 256M' >> /usr/local/etc/php/php.ini
 
-# how to build this image: docker build -t registry.awan.io/awan/base/php:7.1.0 -f Dockerfile-base-php7 .
+# how to build this image: docker build -t registry.awan.io/awan/base/php:7.1 -f Dockerfile-base-php7 .
